@@ -29,5 +29,13 @@ a the same microsecond can be simulated for testing.
 
 ```
 make
-dynamo
+dynamo >/dev/null
+```
+
+If you don't redirect the output, you'll get a bunch of details about each loop execution.
+
+You may also want to try reducing the number of OpenMP threads to the actual number of physical cores
+
+```
+OMP_NUM_THREADS=40 dynamo >/dev/null
 ```

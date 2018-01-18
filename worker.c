@@ -107,7 +107,9 @@ worker( struct task *task )
 
         /* Wait for work to do */
         target_time = task->Wait2Start() ;
+#if 0
 printf( "Target Time: %10.9f msec, ", target_time *1E3 );
+#endif
 
         /* Use history to find good work estimate for the target_time
          *   while making room for the next entry.
@@ -121,8 +123,12 @@ printf( "Target Time: %10.9f msec, ", target_time *1E3 );
             };
         };
         if( hcnt >= HIST_SIZE ) { --hcnt; };
+
+        /* Geometric mean of work history */
         work = exp(log_work/cnt_work);
+#if 0
 printf(" log_work: %f, cnt_work: %ld, work: %ld\n", log_work, cnt_work, work);
+#endif
 
         /* Perform and Time the task */
         task_start = mysecond();
@@ -130,8 +136,7 @@ printf(" log_work: %f, cnt_work: %ld, work: %ld\n", log_work, cnt_work, work);
         task_end = mysecond();
 
         /* Report the time */
-printf( "%ld work took %10.9f msec instead %10.9f msec\n", work, (task_end - task_start) * 1E3, target_time * 1E3 );
-        task->ReportTime( task_end - task_start );
+        task->ReportTime( target_time, work, task_end - task_start );
 
 #ifdef BOUNDED_HISTORY_CHECK
 	if( hcnt < HIST_SIZE && (task_end-task_start) * 40.0 > target_time && (task_end-task_start) < 40.0 * target_time ) {
@@ -146,7 +151,7 @@ printf( "%ld work took %10.9f msec instead %10.9f msec\n", work, (task_end - tas
             ++hcnt ;
         };
 
-    } /* while forever */
+    } /* while */
 
     return 0 ;
 };

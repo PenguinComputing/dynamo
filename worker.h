@@ -9,7 +9,7 @@
 struct task {
     double (*Wait2Start)();
     void (*Task)( long work );
-    void (*ReportTime)( double elapsed );
+    void (*ReportTime)( double target, long work, double actual );
 };
 
 

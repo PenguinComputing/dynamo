@@ -6,6 +6,7 @@
 
 #include <stddef.h>
 #include "global.h"
+#include "control.h"
 #include "worker.h"
 #include "streamtask.h"
 
@@ -23,6 +24,8 @@ int opt_loops = 100 ;
 size_t opt_init_size = 10000000 ;
 
 static struct task t = {
+        .Wait2Start = StaticWait,
+        .ReportTime = DropReport,
         .Desc = "Stream w/Triad",
         .Init = StreamInit,
         .Task = StreamTaskTriad

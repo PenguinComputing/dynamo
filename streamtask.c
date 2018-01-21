@@ -1,4 +1,4 @@
-/* Copyright (C) 2017  Penguin Computing
+/* Copyright (C) 2017,2018 -- Penguin Computing
  *
  * All rights reserved
  *
@@ -6,6 +6,8 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
+#include "streamtask.h"
 
 static double * a ;
 static double * b ;
@@ -13,7 +15,7 @@ static double * c ;
 static double   s ;
 static size_t   len ;
 
-int AllocArray( size_t array_size )
+int StreamInit( size_t array_size )
 {
 
     len = array_size ;
@@ -22,15 +24,24 @@ int AllocArray( size_t array_size )
     b = calloc( array_size, sizeof(double) );
     c = calloc( array_size, sizeof(double) );
 
+    printf( "StreamSetScalar(%f) ...\n", 1.0 );
+    StreamSetScalar( 1.0 );  /* Init s */
+    printf( "StreamTaskSet(%ld) ...\n", (long) array_size  );
+    StreamTaskSet( array_size );  /* Init a[] */
+    printf( "StreamTaskCopy(%ld) ...\n", (long) array_size  );
+    StreamTaskCopy( array_size );  /* Copy a[] to c[] */
+    printf( "StreamTaskScale(%ld) ...\n", (long) array_size  );
+    StreamTaskScale( array_size );  /* Copy c[] to b[] */
+
     return( NULL != a && NULL != b && NULL != c );
 }
 
-void SetScalar( double scalar )
+void StreamSetScalar( double scalar )
 {
     s = scalar ;
 }
  
-void TaskSet( long work )
+void StreamTaskSet( long work )
 {
     ssize_t j, limit;
 
@@ -49,7 +60,7 @@ void TaskSet( long work )
     }
 }
 
-void TaskCopy( long work )
+void StreamTaskCopy( long work )
 {
     ssize_t j, limit;
 
@@ -77,9 +88,10 @@ void TaskCopy( long work )
     }
 }
 
-void TaskScale( long work )
+void StreamTaskScale( long work )
 {
     ssize_t j, limit;
+    register double S = s ;
 
     while( work > 0 ) {
         if( work > len ) {
@@ -90,13 +102,13 @@ void TaskScale( long work )
 
 #pragma omp parallel for
         for (j=0; j<limit; j++)
-            b[j] = s*c[j];
+            b[j] = S*c[j];
 
         work -= limit ;
     }
 }
 
-void TaskAdd( long work )
+void StreamTaskAdd( long work )
 {
     ssize_t j, limit;
 
@@ -115,9 +127,10 @@ void TaskAdd( long work )
     }
 }
 
-void TaskTriad( long work )
+void StreamTaskTriad( long work )
 {
     ssize_t j, limit;
+    register double S = s ;
 
     while( work > 0 ) {
         if( work > len ) {
@@ -128,7 +141,7 @@ void TaskTriad( long work )
 
 #pragma omp parallel for
         for (j=0; j<limit; j++)
-            a[j] = b[j]+s*c[j];
+            a[j] = b[j]+S*c[j];
 
         work -= limit ;
     }

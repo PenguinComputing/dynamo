@@ -8,5 +8,8 @@ CFLAGS = -O3 -fopenmp -DMPI
 
 LDFLAGS = -lm -fopenmp
 
-dynamo: main.o global.o mysecond.o task.o worker.o
+dynamo: main.o global.o mysecond.o streamtask.o worker.o control.o
 	$(CC) -o $@ $^ $(LDFLAGS)
+
+clean:
+	/bin/rm dynamo main.o global.o mysecond.o streamtask.o worker.o control.o

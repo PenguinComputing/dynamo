@@ -1,4 +1,4 @@
-/* Copyright (C) 2017  Penguin Computing
+/* Copyright (C) 2017,2018 -- Penguin Computing
  *
  * All rights reserved
  */
@@ -13,19 +13,20 @@
  * 6. Loop back to 1.
  */
 
-#include "global.h"
-#include "worker.h"
+#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <math.h>
+#include "global.h"
+#include "worker.h"
 
 extern double mysecond();
 
 struct history {
     double  target ;
     long  work ;
-    double  log_work ;
     double  actual ;
+    double  log ;  /* work/actual */
 };
 
 #define HIST_SIZE  (20)
@@ -46,7 +47,7 @@ worker( struct task *task )
     /* Run the task a few times with different work values to
      *    populate the history array
      */
-    work = 10000 ;
+    work = 10000 ;  /* A guess */
     target_time = 0 ;
 
     for( hcnt = 0 ; hcnt < HIST_SIZE ; ++hcnt ) {
@@ -56,21 +57,22 @@ worker( struct task *task )
         task->Task(work);
         task_end = mysecond();
 
+        /* Report the time */
+        task->ReportTime( target_time, work, task_end - task_start );
+
         /* Save the result */
         history[hcnt].target = target_time ;
         history[hcnt].work = work ;
-        history[hcnt].log_work = log( work );
         target_time = history[hcnt].actual = task_end - task_start ;
-#if 1
-        printf( "%9ld work took %10.9f msec\n", work, target_time*1e3 );
-#endif
+        if( target_time > 0 )
+            history[hcnt].log = log( work/target_time );
 
         if( target_time <= 0 ) {
             /* Whoops, probably way to little work */
             fprintf( stderr, "Task completed too quickly (%10.9f sec for %ld work)\n",
                         target_time, work );
             target_time = MIN_TGT ;
-            work += work ;
+            work += work ;  /* Exponential increase */
             --hcnt ;  /* Overwrite this on the next pass */
         } else if( target_time > MAX_TGT ) {
             /* Whoops, probably way to long */
@@ -80,6 +82,9 @@ worker( struct task *task )
             if( work < 10 ) work = 10 ;
             target_time = MAX_TGT ;
             --hcnt ;  /* Overwrite this on the next pass */
+            /* NOTE: This can cause an infinite loop if the Task selected
+             *    can't complete in less than MAX_TGT time with work = 10
+             */
         } else if( target_time < MIN_TGT ) {
             /* Hmm..  Too short */
             work = work * MIN_TGT / target_time ;
@@ -96,27 +101,22 @@ worker( struct task *task )
         if( work < 10 ) work = 10 ;
     };
 
-#ifdef FOREVER
-    /* Forever */
-    while( 1 ) {
-#else
-    for( j = 1 ; j < 10000 ; ++j ) {
-#endif
+    for( j = 1 ; j < opt_loops ; ++j ) {
         double  log_work ;
         size_t  cnt_work ;
 
         /* Wait for work to do */
         target_time = task->Wait2Start() ;
 #if 0
-printf( "Target Time: %10.9f msec, ", target_time *1E3 );
+        printf( "Target Time: %10.9f msec, ", target_time *1E3 );
 #endif
 
         /* Use history to find good work estimate for the target_time
          *   while making room for the next entry.
          */
-	log_work = history[0].log_work + log(target_time/history[0].actual) ;
+	log_work = history[0].log ;
         for( cnt_work = 1 ; cnt_work < hcnt ; ++cnt_work ) {
-            log_work += history[cnt_work].log_work + log(target_time/history[cnt_work].actual) ;
+            log_work += history[cnt_work].log ;
             if( hcnt >= HIST_SIZE ) {
                 /* Make room */
                 history[cnt_work-1] = history[cnt_work] ;
@@ -125,7 +125,7 @@ printf( "Target Time: %10.9f msec, ", target_time *1E3 );
         if( hcnt >= HIST_SIZE ) { --hcnt; };
 
         /* Geometric mean of work history */
-        work = exp(log_work/cnt_work);
+        work = exp(log_work/cnt_work) * target_time ;
 #if 0
 printf(" log_work: %f, cnt_work: %ld, work: %ld\n", log_work, cnt_work, work);
 #endif
@@ -138,16 +138,13 @@ printf(" log_work: %f, cnt_work: %ld, work: %ld\n", log_work, cnt_work, work);
         /* Report the time */
         task->ReportTime( target_time, work, task_end - task_start );
 
-#ifdef BOUNDED_HISTORY_CHECK
-	if( hcnt < HIST_SIZE && (task_end-task_start) * 40.0 > target_time && (task_end-task_start) < 40.0 * target_time ) {
-#else
 	if( hcnt < HIST_SIZE ) {
-#endif
+            register double actual ;
             /* Add to the end */
             history[hcnt].target = target_time ;
             history[hcnt].work = work ;
-            history[hcnt].log_work = log(work) ;
-            history[hcnt].actual = task_end - task_start ;
+            history[hcnt].actual = actual = task_end - task_start ;
+            history[hcnt].log = log(work/actual) ;
             ++hcnt ;
         };
 

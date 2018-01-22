@@ -137,9 +137,9 @@ checktick()
      * clock granularity.
      */
 
-    minDelta =  1.0E6 * (timesfound[1]-timesfound[0]);
+    minDelta = timesfound[1]-timesfound[0];
     for (i = 2; i < M; i++) {
-        Delta =  1.0E6 * (timesfound[i]-timesfound[i-1]);
+        Delta = timesfound[i]-timesfound[i-1];
         minDelta = MIN(minDelta, MAX(Delta,0));
     }
 
@@ -155,7 +155,7 @@ int main( int argc, char ** argv ) {
 
     printf( "timeNow:  %20.9f\n", mysecond() );
 
-    printf( "minDelta: %20.9f micro-seconds\n", checktick() );
+    printf( "minDelta: %20.9f usec\n", checktick() * 1E6 );
 
     printf( "OMP_NUM_THREADS: %s\n", getenv("OMP_NUM_THREADS") );
 

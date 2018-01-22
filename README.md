@@ -29,7 +29,7 @@ a the same microsecond can be simulated for testing.
 
 ```
 make
-dynamo >/dev/null
+dynamo
 ```
 
 If you don't redirect the output, you'll get a bunch of details about each loop execution.
@@ -37,5 +37,20 @@ If you don't redirect the output, you'll get a bunch of details about each loop 
 You may also want to try reducing the number of OpenMP threads to the actual number of physical cores
 
 ```
-OMP_NUM_THREADS=40 dynamo >/dev/null
+OMP_NUM_THREADS=40 dynamo
+```
+
+## Complete Command Line Options
+
+```
+usage: ./dynamo -u -h -d -A init -T task -R report -W wait -i idle -b busy
+where:
+   -u|-h  prints this usage message
+   -d  increments the debug level
+   init  is the value passed to the Init funciton (array length)
+   task  is the name of the Task function (not implemented)
+   report  is the name of the Report function (Drop, Print)
+   wait  is the name of the Wait function (No, Static, MPI)
+   idle  is the idle time in seconds
+   busy  is the busy time in seconds
 ```

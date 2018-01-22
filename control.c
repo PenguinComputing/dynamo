@@ -58,11 +58,11 @@ double MPIWait( )
 
     if( myMPI_RANK == 0 ) {  /* Are we the master rank? */
         if( master_sleep <= 0 )  master_sleep = opt_idle_sec * 1E6 ;
-	before = mysecond( );
+        before = mysecond( );
         usleep( master_sleep );
-	MPI_Barrier( MPI_COMM_WORLD );
+        MPI_Barrier( MPI_COMM_WORLD );
         after = mysecond( );
-	if( (after - before) > opt_idle_sec ) {
+        if( (after - before) > opt_idle_sec ) {
             --master_sleep ;
         } else {
             ++master_sleep ;

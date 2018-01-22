@@ -114,7 +114,7 @@ worker( struct task *task )
         /* Use history to find good work estimate for the target_time
          *   while making room for the next entry.
          */
-	log_work = history[0].log ;
+        log_work = history[0].log ;
         for( cnt_work = 1 ; cnt_work < hcnt ; ++cnt_work ) {
             log_work += history[cnt_work].log ;
             if( hcnt >= HIST_SIZE ) {
@@ -138,7 +138,7 @@ printf(" log_work: %f, cnt_work: %ld, work: %ld\n", log_work, cnt_work, work);
         /* Report the time */
         task->ReportTime( target_time, work, task_end - task_start );
 
-	if( hcnt < HIST_SIZE ) {
+        if( hcnt < HIST_SIZE ) {
             register double actual ;
             /* Add to the end */
             history[hcnt].target = target_time ;

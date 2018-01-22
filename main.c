@@ -21,14 +21,93 @@
 extern double mysecond();
 
 int parse_args( int argc, char ** argv ) {
+    int option ;
+    int retval = 0 ; /* Assume success */
 
-   return 0 ;
+    ARGV0 = argv[0] ;
+
+    while( (option = getopt( argc, argv, "uhdA:i:b:l:T:R:W:" )) > 0) {
+        switch( option ) {
+        case 'A' : /* Task Init value aka Array size */
+            opt_init_size = strtol(optarg, NULL, 0);
+            if( opt_debug )
+                printf( "opt_init_size = %ld\n", opt_init_size );
+            break ;
+        case 'i' : /* Idle time */
+            opt_idle_sec = strtod( optarg, NULL );
+            if( opt_debug )
+                printf( "opt_idle_sec = %.6f msec\n", opt_idle_sec * 1E3 );
+            break ;
+        case 'b' : /* Busy time */
+            opt_busy_sec = strtod( optarg, NULL );
+            if( opt_debug )
+                printf( "opt_busy_sec = %.6f msec\n", opt_busy_sec * 1E3 );
+            break ;
+        case 'l' : /* Loops */
+            opt_loops = strtol(optarg, NULL, 0);
+            if( opt_debug )
+                printf( "opt_loops = %d\n", opt_loops );
+            break ;
+        case 'T' : /* Task */
+            printf( "%s: Task selection not implemented yet\n", ARGV0 );
+            break ;
+        case 'R' : /* Report */
+            if( 0 == strcmp( "Drop", optarg ) ) {
+                opt_task->ReportTime = DropReport ;
+            } else if( 0 == strcmp( "Print", optarg ) ) {
+                opt_task->ReportTime = PrintReport ;
+            } else {
+                printf( "%s: Unrecognized Report: %s\n", ARGV0, optarg );
+                retval = 1 ;
+            };
+            break ;
+        case 'W' : /* Wait */
+            if( 0 == strcmp( "Static", optarg ) ) {
+                opt_task->Wait2Start = StaticWait ;
+            } else if( 0 == strcmp( "MPI", optarg ) ) {
+                opt_task->Wait2Start = MPIWait ;
+            } else if( 0 == strcmp( "No", optarg ) ) {
+                opt_task->Wait2Start = NoWait ;
+            } else {
+                printf( "%s: Unrecognized Wait: %s\n", ARGV0, optarg );
+                retval = 1 ;
+            };
+            break ;
+        case 'd' : /* Debug */
+            ++opt_debug ;
+            break ;
+        case '?' : /* Unlisted option */
+            if( opterr == 0 )
+                fprintf( stderr, "%s: Unrecognized option: %c\n", ARGV0, optopt );
+            retval = 1 ;
+        case 'u' : /* Usage */
+        case 'h' : /* Help */
+            opt_usage = 1 ;
+            break ;
+        default :
+            printf( "%s: Internal error. Option %c not handled\n", ARGV0, option );
+            retval = 1 ;
+            break ;
+        };
+    }; /* While */
+
+    return retval ;
 }
 
 int usage( int rc ) {
-   printf( "usage: %s\n", ARGV0 );
+    printf( "usage: %s -u -h -d -A init -T task -R report -W wait -i idle -b busy\n", ARGV0 );
+    fputs(  "where:\n"
+            "   -u|-h  prints this usage message\n"
+            "   -d  increments the debug level\n"
+            "   init  is the value passed to the Init funciton (array length)\n"
+            "   task  is the name of the Task function (not implemented)\n"
+            "   report  is the name of the Report function (Drop, Print)\n"
+            "   wait  is the name of the Wait function (No, Static, MPI)\n"
+            "   idle  is the idle time in seconds\n"
+            "   busy  is the busy time in seconds\n",
+            stdout );
 
-   exit( rc );
+    exit( rc );
 }
 
 
@@ -60,8 +139,8 @@ checktick()
 
     minDelta =  1.0E6 * (timesfound[1]-timesfound[0]);
     for (i = 2; i < M; i++) {
-	Delta =  1.0E6 * (timesfound[i]-timesfound[i-1]);
-	minDelta = MIN(minDelta, MAX(Delta,0));
+        Delta =  1.0E6 * (timesfound[i]-timesfound[i-1]);
+        minDelta = MIN(minDelta, MAX(Delta,0));
     }
 
     return(minDelta);
@@ -82,14 +161,6 @@ int main( int argc, char ** argv ) {
 
 #ifdef MPI
     StartMPI( argc, argv );
-
-    printf( "task -> MPIWait, PrintReport, %s\n", opt_task->Desc );
-    opt_task->Wait2Start = MPIWait ;
-    opt_task->ReportTime = PrintReport ;
-#else
-    printf( "task -> StaticWait, PrintReport, %s\n", opt_task->Desc );
-    opt_task->Wait2Start = StaticWait ;
-    opt_task->ReportTime = PrintReport ;
 #endif
 
     printf( "Init(%ld) ...\n", (long) opt_init_size );

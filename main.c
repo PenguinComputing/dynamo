@@ -95,7 +95,7 @@ int parse_args( int argc, char ** argv ) {
 }
 
 int usage( int rc ) {
-    printf( "usage: %s -u -h -d -A init -T task -R report -W wait -i idle -b busy\n", ARGV0 );
+    printf( "usage: %s -u -h -d -A init -T task -R report -W wait -l len -i idle -b busy\n", ARGV0 );
     fputs(  "where:\n"
             "   -u|-h  prints this usage message\n"
             "   -d  increments the debug level\n"
@@ -103,6 +103,7 @@ int usage( int rc ) {
             "   task  is the name of the Task function (not implemented)\n"
             "   report  is the name of the Report function (Drop, Print)\n"
             "   wait  is the name of the Wait function (No, Static, MPI)\n"
+            "   len   length of array (elements)\n"
             "   idle  is the idle time in seconds\n"
             "   busy  is the busy time in seconds\n",
             stdout );

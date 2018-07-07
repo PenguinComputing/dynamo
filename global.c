@@ -24,7 +24,11 @@ int opt_loops = 100 ;
 size_t opt_init_size = 10000000 ;
 
 static struct task t = {
+#ifdef MPI
+        .Wait2Start = MPIWait,
+#else
         .Wait2Start = StaticWait,
+#endif
         .ReportTime = DropReport,
         .Desc = "Stream w/Triad",
         .Init = StreamInit,

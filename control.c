@@ -55,6 +55,7 @@ double MPIWait( )
 {
     static int master_sleep = 0 ;
     double before, after ;
+    static int msg_cnt = 0 ;
 
     if( myMPI_RANK == 0 ) {  /* Are we the master rank? */
         if( master_sleep <= 0 )  master_sleep = opt_idle_sec * 1E6 ;
@@ -68,7 +69,10 @@ double MPIWait( )
             ++master_sleep ;
         }
 #if 1
-        printf( "Timing sleep: %d usec\n", master_sleep );
+        if( ++msg_cnt > 10 ) {
+            printf( "Timing sleep: %d usec\n", master_sleep );
+            msg_cnt = 0 ;
+        }
 #endif
     } else {
         MPI_Barrier( MPI_COMM_WORLD );
@@ -85,7 +89,11 @@ void StopMPI( )
 #else
 double MPIWait( )
 {
-    fprintf( stderr, "%s: Compiled without MPI support, doing StaticWait\n", ARGV0 );
+    static int warn_once = 0 ;
+    if( !warn_once ) {
+        fprintf( stderr, "%s: Compiled without MPI support, doing StaticWait\n", ARGV0 );
+        warn_once = 1;
+    }
     return StaticWait( );
 }
 #endif
@@ -99,6 +107,10 @@ void DropReport( double target, long work, double actual )
 
 void PrintReport( double target, long work, double actual )
 {
+#ifdef MPI
+    if( myMPI_RANK != 0 )  /* Are we the master rank? */
+        return ;
+#endif
     printf( "[%12.9f] Target: %10.6f msec, Work: %12ld  Actual: %10.6f msec\n",
             mysecond(), target * 1.0E3, work, actual * 1.0E3 );
 }

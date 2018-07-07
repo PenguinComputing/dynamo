@@ -24,13 +24,15 @@ int StreamInit( size_t array_size )
     b = calloc( array_size, sizeof(double) );
     c = calloc( array_size, sizeof(double) );
 
+#if 0
     printf( "StreamSetScalar(%f) ...\n", 1.0 );
-    StreamSetScalar( 1.0 );  /* Init s */
     printf( "StreamTaskSet(%ld) ...\n", (long) array_size  );
-    StreamTaskSet( array_size );  /* Init a[] */
     printf( "StreamTaskCopy(%ld) ...\n", (long) array_size  );
-    StreamTaskCopy( array_size );  /* Copy a[] to c[] */
     printf( "StreamTaskScale(%ld) ...\n", (long) array_size  );
+#endif
+    StreamSetScalar( 1.0 );  /* Init s */
+    StreamTaskSet( array_size );  /* Init a[] */
+    StreamTaskCopy( array_size );  /* Copy a[] to c[] */
     StreamTaskScale( array_size );  /* Copy c[] to b[] */
 
     return( NULL != a && NULL != b && NULL != c );

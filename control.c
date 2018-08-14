@@ -31,6 +31,8 @@ void NoComplete( )
 
 #ifdef MPI
 int  myMPI_RANK ;
+static int master_sleep = 0 ;
+
 void StartMPI( int argc, char ** argv )
 {
    int  numtasks, len, rc; 
@@ -49,16 +51,18 @@ void StartMPI( int argc, char ** argv )
    MPI_Get_processor_name(hostname, &len);
    printf ("Number of tasks= %d My rank= %d Running on %s\n", numtasks,myMPI_RANK,hostname);
 
+   // Default starting wait time
+   master_sleep = opt_idle_sec * 1E6 ;
+
 }
 
 double MPIWait( )
 {
-    static int master_sleep = 0 ;
     double before, after ;
     static int msg_cnt = 0 ;
 
     if( myMPI_RANK == 0 ) {  /* Are we the master rank? */
-        if( master_sleep <= 0 )  master_sleep = opt_idle_sec * 1E6 ;
+        if( master_sleep < 0 )  master_sleep = 0 ;
         before = mysecond( );
         usleep( master_sleep );
         MPI_Barrier( MPI_COMM_WORLD );
@@ -70,7 +74,7 @@ double MPIWait( )
         }
 #if 1
         if( ++msg_cnt > 10 ) {
-            printf( "Timing sleep: %d usec\n", master_sleep );
+            printf( "Timing sleep: %d usec, actual idle: %.2f usec\n", master_sleep, (after-before)*1.0e6 );
             msg_cnt = 0 ;
         }
 #endif

@@ -42,7 +42,7 @@ OMP_NUM_THREADS=40 dynamo
 ## Complete Command Line Options
 
 ```
-usage: ./dynamo -u -h -d -A init -T task -R report -W wait -i idle -b busy
+usage: ./dynamo -u -h -d -A init -T task -R report -W wait -l loops -i idle -b busy
 where:
    -u|-h  prints this usage message
    -d  increments the debug level
@@ -50,6 +50,7 @@ where:
    task  is the name of the Task function (not implemented)
    report  is the name of the Report function (Drop, Print)
    wait  is the name of the Wait function (No, Static, MPI)
+   loops  is the number of iterations of idle/busy times
    idle  is the idle time in seconds
    busy  is the busy time in seconds
 ```

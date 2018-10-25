@@ -103,7 +103,7 @@ int usage( int rc ) {
             "   task  is the name of the Task function (not implemented)\n"
             "   report  is the name of the Report function (Drop, Print)\n"
             "   wait  is the name of the Wait function (No, Static, MPI)\n"
-            "   loops  is the number of iterations to run (repeated busy-idle period)\n"
+            "   loops  is the number of iterations of idle/busy times\n"
             "   idle  is the idle time in seconds\n"
             "   busy  is the busy time in seconds\n",
             stdout );

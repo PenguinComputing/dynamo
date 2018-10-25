@@ -20,10 +20,9 @@ supplies.  Average power and heat are not the problem as the average can be
 This executable aims to produce these same rapid transitions between idle and
 high power states.
 
-As of version 0.1 only a single system is tested.  In a future version we aim
-to be able to synchronize multiple nodes using MPI so that the aggregated load
-of distributed MPI applications all switching between low and high power states
-a the same microsecond can be simulated for testing.
+As of Aug 14, 2018 Dynamo can be compiled with MPI support (see the Makefile) so
+that multiple node workers can be syncronized to increase the effect on the power
+infrastructure. 
 
 ## COMPILE AND RUN
 

@@ -39,6 +39,28 @@ You may also want to try reducing the number of OpenMP threads to the actual num
 OMP_NUM_THREADS=40 dynamo
 ```
 
+## MPI runs
+
+For maximum stress, it seems best to configure MPI to start one rank per NUMA
+node (typically a socket) and set OMP_NUM_THREADS to be the number of cores in
+that socket.  Be careful to select the right MPI affinity directives to insure
+that the two ranks on one node get bound to DIFFERENT CPU sockets.  "Recent"
+MPI stacks seem to do the right thing, but it was common for MPI stacks to get
+the affinity wrong and bind both ranks to one socket.
+
+The default busy and idle times are 500usec each, so one loop iterations is
+only 1ms.  To get human scale run times, you'll need to set a number of loops
+higher than the default of 100.  For a 10-second run, `-l 10000` would be
+expected.  In practice, if a system has a problem, it generally manifests
+pretty quickly.  Runs of 60 seconds or longer that do not fail, could be
+considered PASSING.
+
+mpirun -x OMP_NUM_THREADS=40 dynamo -l 10000
+
+To get more details of the internal wait times:
+
+mpirun -x OMP_NUM_THREADS=40 dynamo -l 10000 -R Print
+
 ## Complete Command Line Options
 
 ```

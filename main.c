@@ -12,6 +12,7 @@
 #include "global.h"
 #include "worker.h"
 #include "streamtask.h"
+#include "memorytask.h"
 #include "control.h"
 
 #ifdef MPI
@@ -49,7 +50,33 @@ int parse_args( int argc, char ** argv ) {
                 printf( "opt_loops = %d\n", opt_loops );
             break ;
         case 'T' : /* Task */
-            printf( "%s: Task selection not implemented yet\n", ARGV0 );
+            if( 0 == strcmp( "Stream", optarg ) || 0 == strcmp( "StreamTriad", optarg ) ) {
+                opt_task->Desc = "Stream Triad" ;
+                opt_task->Init = StreamInit ;
+                opt_task->Task = StreamTaskTriad ;
+            } else if( 0 == strcmp( "StreamSet", optarg ) ) {
+                opt_task->Desc = "Stream Set" ;
+                opt_task->Init = StreamInit ;
+                opt_task->Task = StreamTaskSet ;
+            } else if( 0 == strcmp( "StreamCopy", optarg ) ) {
+                opt_task->Desc = "Stream Copy" ;
+                opt_task->Init = StreamInit ;
+                opt_task->Task = StreamTaskCopy ;
+            } else if( 0 == strcmp( "StreamAdd", optarg ) ) {
+                opt_task->Desc = "Stream Add" ;
+                opt_task->Init = StreamInit ;
+                opt_task->Task = StreamTaskAdd ;
+            } else if( 0 == strcmp( "StreamScale", optarg ) ) {
+                opt_task->Desc = "Stream Scale" ;
+                opt_task->Init = StreamInit ;
+                opt_task->Task = StreamTaskScale ;
+            } else if( 0 == strcmp( "Memory", optarg ) ) {
+                opt_task->Desc = "Memory Scan and Test" ;
+                opt_task->Init = MemoryInit ;
+                opt_task->Task = MemoryTaskUpdate ;
+            } else {
+                printf( "%s: Task %s not recognized\n", ARGV0, optarg );
+            }
             break ;
         case 'R' : /* Report */
             if( 0 == strcmp( "Drop", optarg ) ) {

@@ -1,14 +1,14 @@
 # Without MPI
-#CC = gcc
-#CFLAGS = -O3 -fopenmp
+CC = gcc
+CFLAGS = -O3 -fopenmp
 
 # With MPI
-CC = mpicc
-CFLAGS = -O3 -fopenmp -DMPI
+#CC = mpicc
+#CFLAGS = -O3 -fopenmp -DMPI
 
 LDFLAGS = -lm -fopenmp
 
-dynamo: main.o global.o mysecond.o streamtask.o worker.o control.o
+dynamo: main.o global.o mysecond.o streamtask.o worker.o control.o memorytask.o
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 clean:

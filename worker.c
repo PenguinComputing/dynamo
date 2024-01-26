@@ -81,10 +81,12 @@ worker( struct task *task )
             work = work * MAX_TGT / target_time ;
             if( work < 10 ) work = 10 ;
             target_time = MAX_TGT ;
-            --hcnt ;  /* Overwrite this on the next pass */
-            /* NOTE: This can cause an infinite loop if the Task selected
+            /* NOTE: Overwriting can cause an infinite loop if the Task selected
              *    can't complete in less than MAX_TGT time with work = 10
              */
+            if( history[hcnt].work > 10 ) {
+                --hcnt ;  /* Overwrite this on the next pass */
+            }
         } else if( target_time < MIN_TGT ) {
             /* Hmm..  Too short */
             work = work * MIN_TGT / target_time ;

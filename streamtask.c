@@ -42,7 +42,7 @@ void StreamSetScalar( double scalar )
 {
     s = scalar ;
 }
- 
+
 void StreamTaskSet( long work )
 {
     ssize_t j, limit;

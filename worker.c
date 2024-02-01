@@ -5,12 +5,11 @@
 
 /* Worker function
  *
- * 1. Call "Wait2Start"
- * 2. Calculate Work amount
- * 3. Call Work function
- * 4. Measure actual time
- * 5. Report time
- * 6. Loop back to 1.
+ * 1. Get Work amount
+ * 2. Call Work function
+ * 3. Report actual time
+ * 4. Wait for idle time
+ * 5. Loop back to 1.
  */
 
 #include <stddef.h>
@@ -37,19 +36,22 @@ worker( struct task *task )
     long  work ;
     int  j ;
 
-    /* Get initial work value */
+    /* 1. Get Work amount */
     work = UpdateWork( -1.0 );
 
     for( j = 1 ; j < opt_loops ; ++j ) {
         /* Perform and Time the task */
+
+        /* 2. Call Work function */
         task_start = mysecond();
         task->Task( work );
         task_end = mysecond();
 
-        /* Report the time */
+        /* 3. Report actual time */
         task->ReportTime( opt_busy_sec, work, task_end - task_start );
 
-        /* Wait for work to do */
+        /* 4. Wait for idle time */
+        /* 1. Get Work amount */
         work = task->Wait2Start( task_end - task_start ) ;
     };
 

@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "global.h"
 #include "streamtask.h"
 
 static double * a ;
@@ -31,9 +32,21 @@ int StreamInit( size_t array_size )
     printf( "StreamTaskScale(%ld) ...\n", (long) array_size  );
 #endif
     StreamSetScalar( 1.0 );  /* Init s */
+    if( opt_debug ) {
+        fprintf( stderr, "Initializing a[] ...\n" );
+    };
     StreamTaskSet( array_size );  /* Init a[] */
+    if( opt_debug ) {
+        fprintf( stderr, "Copy a[] to c[] ...\n" );
+    };
     StreamTaskCopy( array_size );  /* Copy a[] to c[] */
+    if( opt_debug ) {
+        fprintf( stderr, "Copy c[] to b[] with scalar ...\n" );
+    };
     StreamTaskScale( array_size );  /* Copy c[] to b[] */
+    if( opt_debug ) {
+        fprintf( stderr, "Array initialization complete.\n" );
+    };
 
     return( NULL != a && NULL != b && NULL != c );
 }

@@ -188,7 +188,9 @@ long UpdateWork( double actual )
     } else {
         long prevwork = lastwork ;
         lastwork *= sqrt(opt_busy_sec/actual) ;
-        printf( "opt_busy_sec: %10.6f  actual: %10.6f  prev: %ld  curr: %ld  ratio: %10.6f\n", opt_busy_sec, actual, prevwork, lastwork, sqrt(1.0*lastwork/prevwork) );
+	if( opt_debug ) {
+            fprintf( stderr, "Target: %10.6f  actual: %10.6f  prev: %ld  curr: %ld  ratio: %10.6f\n", opt_busy_sec, actual, prevwork, lastwork, sqrt(1.0*lastwork/prevwork) );
+        };
     };
 
     return lastwork ;

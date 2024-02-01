@@ -12,7 +12,6 @@
 #include "memorytask.h"
 #include "global.h"
 
-
 /* Reference POLY values from:
  *   https://users.ece.cmu.edu/~koopman/crc/index.html
  */
@@ -52,7 +51,7 @@ word_t crc32c(word_t crc, const uint_8 *buf, size_t len)
     while (len--) {
         crc ^= *buf++;
         for (k = 0; k < 8; k++)
-            crc = (crc >> 1) ^ (POLY & (0 - (crc & 1))); 
+            crc = (crc >> 1) ^ (POLY & (0 - (crc & 1)));
     }
     return ~crc;
 }
@@ -114,7 +113,7 @@ static void fprinttestbuf(FILE *fp, word_t *buf, size_t len)
     }
     fprintf(fp, "bit  one   zero\n" );
     for( b = 0 ; b < sizeof(word_t)*8 ; ++b ) {
-        fprintf(fp, "%3d  %5d %5d %5d\n", b, one[b], zero[b], one[b]-zero[b] );  
+        fprintf(fp, "%3d  %5d %5d %5d\n", b, one[b], zero[b], one[b]-zero[b] );
     }
 }
 
@@ -143,7 +142,7 @@ void MemoryTaskUpdate( long work )
 {
     int  result = 0 ;
 
-    if( opt_debug ) {
+    if( opt_debug && myMPI_RANK == 0 ) {
         fprintf( stderr, "Seed: %16lx  Work: %ld  buflen: %ld  lastlen: %ld\n", seed, work, buflen, lastlen );
         fprintbuf( stderr, buffer, 8 );
     };
@@ -168,20 +167,20 @@ void MemoryTaskUpdate( long work )
             };
         };
         if( limit <= lastlen ) {
-            if( opt_debug ) { fputs( "u", stderr ); };
+            if( opt_debug && myMPI_RANK == 0 ) { fputs("u", stderr); };
             result += updatebuf(seed, buffer, limit);
             seed = fillbuf(seed, &scratch, 1);
         } else {
-            if( opt_debug ) { fputs( "f", stderr ); };
+            if( opt_debug && myMPI_RANK == 0 ) { fputs("f", stderr); };
             seed = fillbuf(seed, &scratch, 1);
             fillbuf(seed, buffer, limit);
-        }; 
+        };
         lastlen = limit ;
         work -= limit ;
     };
-    if( opt_debug ) { fputs("\n", stderr); };
+    if( opt_debug && myMPI_RANK == 0 ) { fputs("\n", stderr); fflush(stderr); };
 
     if( result ) {
-        fputs( "Update detected memory error\n", stderr );
+        fputs( "'Update' operation detected incorrect memory contents\n", stderr );
     }
 }

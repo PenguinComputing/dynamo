@@ -20,6 +20,8 @@ extern size_t opt_init_size ;
 
 extern struct task *opt_task ;
 
+extern int myMPI_RANK ;
+
 /* Useful macros */
 # ifndef MIN
 # define MIN(x,y) ((x)<(y)?(x):(y))

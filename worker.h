@@ -6,10 +6,10 @@
 #include <stdlib.h>
 
 struct task {
-    double (*Wait2Start)();
+    long (*Wait2Start)( double );
     void (*ReportTime)( double target, long work, double actual );
     char *Desc ;
-    int (*Init)( size_t size ); 
+    int (*Init)( size_t size );
     void (*Task)( long work );
 };
 

@@ -114,7 +114,7 @@ long MPIWait( double actual )
             ++master_sleep ;
         }
 #if 1
-        if( ++msg_cnt > 10 ) {
+        if( ++msg_cnt > 10*(!opt_debug) ) {
             printf( "Actuals: Min: %10.6f msec, Avg: %10.6f msec, Max: %10.6f msec  -- New Work: %ld\n", min*1.0e3, 1.0e3 * total/numtasks , max*1.0e3, work );
             printf( "Timing sleep: %d usec, actual idle: %.2f usec\n", master_sleep, (after-before)*1.0e6 );
             msg_cnt = 0 ;

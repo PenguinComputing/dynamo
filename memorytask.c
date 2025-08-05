@@ -72,13 +72,18 @@ static word_t fillbuf(word_t seed, word_t *buf, size_t len)
 static int updatebuf(word_t seed, word_t *buf, size_t len)
 {
     word_t  lfsr ;
+    word_t  badbits = 0 ;
     int  check = 0;
 
     lfsr = ~seed ;
     while ( len -- ) {
+        badbits |= (lfsr ^ *buf) ;
         check += (lfsr ^ *buf) != 0 ;  /* Count non-zero */
         lfsr = (lfsr >> 1) ^ (POLY & (0 - (lfsr & 1)));
         *buf++ = lfsr ;
+    };
+    if ( check ) {
+       fprintf( stderr, "updatebuf: badbits = 0x%08x\n", badbits );
     };
     return check ;
 }
@@ -181,6 +186,6 @@ void MemoryTaskUpdate( long work )
     if( opt_debug && myMPI_RANK == 0 ) { fputs("\n", stderr); fflush(stderr); };
 
     if( result ) {
-        fputs( "'Update' operation detected incorrect memory contents\n", stderr );
+        fprintf( stderr, "'Update' detected incorrect memory %d times on rank %d\n", result, myMPI_RANK );
     }
 }
